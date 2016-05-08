@@ -1,0 +1,6 @@
+G:\StockQuote\sample\bin\sample.dll.config
+G:\StockQuote\sample\bin\sample.dll
+G:\StockQuote\sample\bin\sample.pdb
+G:\StockQuote\sample\obj\Debug\sample.csprojResolveAssemblyReference.cache
+G:\StockQuote\sample\obj\Debug\sample.dll
+G:\StockQuote\sample\obj\Debug\sample.pdb
