@@ -120,46 +120,23 @@ namespace sample
                 // Походу здесь только одно имя компании лежит и все
                 string[] symbols = symbol.Replace(",", " ").Split(' ');
 
-                //*********************************
-
-                HistoricalStockDownloader.DownloadData("MSFT", 1990);
-
-                // забираю с сервера все акции за все года
-                /*string company = "AAPL";
-                string companyURL = @"http://ichart.finance.yahoo.com/table.csv?s=" + company + "&c=1962";*
-
-                HttpWebRequest MyWebRequest = (HttpWebRequest)WebRequest.Create(companyURL);
-                HttpWebResponse MyWebResponse = (HttpWebResponse)MyWebRequest.GetResponse();
-                StreamReader MyStreamReader = new StreamReader(MyWebResponse.GetResponseStream(), Encoding.ASCII);*/
-
-                //List<HistoricalStock> data = HistoricalStockDownloader.DownloadData("AAPL", 1962);
-
-                /*foreach (HistoricalStock stock in data)
-                {
-                    Console.WriteLine(string.Format("Date={0} High={1} Low={2} Open={3} Close{4}", stock.Date, stock.High, stock.Low, stock.Open, stock.Close));
-         
-                }*/
-
-                // попытаюсь запихнуть это в CSV
-                /*var csv = new StringBuilder();
-                try
-                {
-                    csv.Append(MyStreamReader.ToString());
-                    File.WriteAllText("G:/YahooTest.txt", csv.ToString());
-                } catch(Exception exc)
-                {
-                    Console.WriteLine("SOMETHING BAD WITH WRITING TO CSV: {0}", exc.Message);
-                }*/
-
-
-                //***********************************
-
                 // Initialize a new WebRequest.
                 HttpWebRequest webreq = (HttpWebRequest)WebRequest.Create(yahooURL);
                 // Get the response from the Internet resource.
                 HttpWebResponse webresp = (HttpWebResponse)webreq.GetResponse();
                 // Read the body of the response from the server.
                 StreamReader strm = new StreamReader(webresp.GetResponseStream(), Encoding.ASCII);
+
+
+                // *******************************************************************************
+                
+                List<HistoricalStock> data = HistoricalStockDownloader.DownloadData("MSFT", 1962);
+
+                // ********************************************************************************
+
+
+
+
 
                 // Construct a XML in string format.
                 string tmp = "<StockQuotes>";
@@ -243,5 +220,14 @@ namespace sample
             // Return the stock quote data in XML format.
             return result;
         }
+
+
+
+
+
+        // ******************************
+        // New methos might be situeted here
+
+        // code
     }
 }
