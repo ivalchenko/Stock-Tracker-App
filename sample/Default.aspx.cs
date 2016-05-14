@@ -6,6 +6,10 @@ using System.Xml.XPath;
 using System.Net;
 using System.Text;
 using System.Collections.Generic;
+using System.Data;
+using System.Web.Services;
+using Newtonsoft.Json;
+using System.Linq;
 
 namespace sample
 {
@@ -117,6 +121,7 @@ namespace sample
                 // Use Yahoo finance service to download stock data from Yahoo
                 // да, здесь получаем акцию за сейчас и ее инфу
                 string yahooURL = @"http://download.finance.yahoo.com/d/quotes.csv?s=" + symbol + "&f=sl1d1t1c1hgvbap2";
+
                 // Походу здесь только одно имя компании лежит и все
                 string[] symbols = symbol.Replace(",", " ").Split(' ');
 
@@ -130,7 +135,31 @@ namespace sample
 
                 // *******************************************************************************
                 
-                List<HistoricalStock> data = HistoricalStockDownloader.DownloadData("MSFT", 1962);
+                 
+
+                List<HistoricalStock> data = HistoricalStockDownloader.DownloadData(symbol, 1962);
+
+             
+
+                var buff = from p in data where p.Date.Year == 2016
+                          select new
+                           {
+                               p.Date,
+                               p.High,
+                               p.Low
+                           };
+
+                foreach(var item in buff)
+                    File.AppendAllText("G:/Info.txt", item + Environment.NewLine);
+
+                DateTime dateOfHighestPrice = buff.Last().Date;
+                File.AppendAllText("G:/Info.txt", "Та самая дата: " + dateOfHighestPrice + Environment.NewLine);
+                NewsModel._fromDate = dateOfHighestPrice.AddDays(-1);
+                File.AppendAllText("G:/Info.txt", "Предыдущий день: " + NewsModel._fromDate + Environment.NewLine);
+                NewsModel._toDate = dateOfHighestPrice.AddDays(+1);
+                File.AppendAllText("G:/Info.txt", "Следующий день: " + NewsModel._toDate + Environment.NewLine);
+
+                NewsModel._phrase = symbol;
 
                 // ********************************************************************************
 
@@ -228,6 +257,120 @@ namespace sample
         // ******************************
         // New methos might be situeted here
 
-        // code
+        [WebMethod]
+        public static ItemNews[] GetNewsContent(string SearchPhrase)
+        {
+            List<ItemNews> Details = new List<ItemNews>();
+
+            // httpWebRequest with API url 
+            //string guardianURL = @"http://content.guardianapis.com/search?q=" + SearchPhrase + "&from-date=" + NewsModel._fromDate.ToString("yyyy-MM-dd") + "&to-date=" + NewsModel._toDate.ToString("yyyy-MM-dd") + "&order-by=oldest&page-size=30" + "&api-key=6392a258-3c53-4e76-87ec-e9092356fa74";
+            string guardianURL = @"http://content.guardianapis.com/search?q=" + SearchPhrase + "&section=technology&from-date=" + NewsModel._fromDate.ToString("yyyy-MM-dd") + "&to-date=" + NewsModel._toDate.ToString("yyyy-MM-dd") + "&order-by=oldest&page-size=30" + "&api-key=6392a258-3c53-4e76-87ec-e9092356fa74";
+
+            //"&tag=" + NewsModel._phrase +
+
+            // ********
+            File.AppendAllText("G:/Error.txt", guardianURL + Environment.NewLine);
+            // *********
+
+            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(guardianURL);
+
+            //Method GET
+            request.Method = "GET";
+
+            //HttpWebResponse for result
+            HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+
+            //Mapping of status code
+            if (response.StatusCode == HttpStatusCode.OK)
+            {
+
+                Stream receiveStream = response.GetResponseStream();
+                StreamReader readStream = null;
+
+                if (response.CharacterSet == "")
+                    readStream = new StreamReader(receiveStream);
+                else
+                    readStream = new StreamReader(receiveStream, Encoding.GetEncoding(response.CharacterSet));
+
+                //Get news data in json string
+
+                string data = readStream.ReadToEnd();
+
+                //Declare DataSet for put data in it.
+                DataSet ds = new DataSet();
+                StringReader reader = new StringReader(data);
+
+                // uncomment
+                //ds.ReadXml(reader);
+                //DataTable dtGetNews = new DataTable();
+
+                // parse my json here
+                try
+                {
+                    //var model = JsonConvert.DeserializeObject<List<NewsModel.RootObject>>(data);
+                    var model = JsonConvert.DeserializeObject<NewsModel.RootObject>(data);
+                    foreach(NewsModel.Result res in model.response.results)
+                    {
+                        //File.AppendAllText("G:/News.txt", res + Environment.NewLine);
+                        ItemNews news = new ItemNews();
+                        news.title = res.webTitle;
+                        news.link = res.webUrl;
+                        news.item_id = res.id;
+                        news.PubDate = res.webPublicationDate;
+                        //news.Description = null;
+
+                        Details.Add(news);
+                        File.AppendAllText("G:/News.txt", news + Environment.NewLine);
+                    }
+                        
+                } catch(Exception exc)
+                {
+                    File.AppendAllText("G:/Error.txt", "Something bad with json parsing. Message: " + exc.Message);
+                }
+                
+
+                /*if (ds.Tables.Count > 3)
+                {
+                    dtGetNews = ds.Tables["item"];
+
+                    foreach (DataRow dtRow in dtGetNews.Rows)
+                    {
+                        ItemNews DataObj = new ItemNews();
+                        DataObj.title = dtRow["title"].ToString();
+                        //DataObj.link = dtRow["link"].ToString();
+                        //DataObj.Description = dtRow["description"].ToString();
+                        //DataObj.PubDate = dtRow["pubDate"].ToString();
+                        //DataObj.item_id = dtRow["item_id"].ToString();
+
+                        //File.AppendAllText("G:/Info.txt", DataObj.title + Environment.NewLine);
+                        //File.AppendAllText("G:/Info.txt", DataObj.link + Environment.NewLine);
+                        //File.AppendAllText("G:/Info.txt", DataObj.Description + Environment.NewLine);
+                        //File.AppendAllText("G:/Info.txt", DataObj.PubDate + Environment.NewLine + Environment.NewLine);
+
+                        Details.Add(DataObj);
+                    }
+
+                }*/
+            }
+
+
+            //Return News array 
+            return Details.ToArray();
+        }
+
+        //Define Class to return news data
+        public class ItemNews
+        {
+            public string title { get; set; }
+            public string link { get; set; }
+            public string item_id { get; set; }
+            public string PubDate { get; set; }
+            public string Description { get; set; }
+
+            public override string ToString()
+            {
+                return string.Format("Title: {0}, Link: {1}, Pubdate: {2}.", title, link, PubDate);
+            }
+        }
     }
 }

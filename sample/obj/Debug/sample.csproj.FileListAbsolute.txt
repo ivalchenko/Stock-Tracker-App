@@ -4,3 +4,13 @@ G:\StockQuote\sample\bin\sample.pdb
 G:\StockQuote\sample\obj\Debug\sample.csprojResolveAssemblyReference.cache
 G:\StockQuote\sample\obj\Debug\sample.dll
 G:\StockQuote\sample\obj\Debug\sample.pdb
+G:\StockQuote\sample\bin\Newtonsoft.Json.dll
+G:\StockQuote\sample\bin\Newtonsoft.Json.xml
+G:\COURSE_WORK_3\StockQuote\sample\bin\sample.dll.config
+G:\COURSE_WORK_3\StockQuote\sample\bin\sample.dll
+G:\COURSE_WORK_3\StockQuote\sample\bin\sample.pdb
+G:\COURSE_WORK_3\StockQuote\sample\bin\Newtonsoft.Json.dll
+G:\COURSE_WORK_3\StockQuote\sample\bin\Newtonsoft.Json.xml
+G:\COURSE_WORK_3\StockQuote\sample\obj\Debug\sample.csprojResolveAssemblyReference.cache
+G:\COURSE_WORK_3\StockQuote\sample\obj\Debug\sample.dll
+G:\COURSE_WORK_3\StockQuote\sample\obj\Debug\sample.pdb

@@ -21,14 +21,14 @@ namespace sample
 
                 try
                 {
-                    File.WriteAllText("G:/TestOfTests.csv", web.DownloadString(string.Format("http://ichart.finance.yahoo.com/table.csv?s={0}&c={1}", ticker, yearToStartFrom)));
+                    File.WriteAllText("G:/Stocks.csv", web.DownloadString(string.Format("http://ichart.finance.yahoo.com/table.csv?s={0}&c={1}", ticker, yearToStartFrom)));
                 }
                 catch (FileNotFoundException exc)
                 {
                     Console.WriteLine(exc.Message);
                 }
 
-                StreamReader sr = new StreamReader("G:/TestOfTests.csv");
+                StreamReader sr = new StreamReader("G:/Stocks.csv");
                 
                 string currentLine;
                 List<string> stoksList = new List<string>();
@@ -38,10 +38,10 @@ namespace sample
 
                 stoksList.RemoveAt(0);
 
-                //foreach (string str in stoksList)
-                for(int i = 0; i < 10; i++)
+                //for(int i = 0; i < 100; i++)
+                foreach (string str in stoksList)
                 {
-                    string str = stoksList.ElementAt(i);
+                    //string str = stoksList.ElementAt(i);
 
                     string[] parsedString = str.Split(',');
 
@@ -63,11 +63,12 @@ namespace sample
                         File.AppendAllText("G:/Errors.txt", exc.Message + Environment.NewLine);
                     }
                     
-
-                    //File.AppendAllText("G:/InfoNEW.txt", hs + Environment.NewLine);
+                    File.AppendAllText("G:/Stocks.txt", hs + Environment.NewLine);
 
                     retval.Add(hs);
                 }
+
+                retval.Sort(delegate (HistoricalStock hs1, HistoricalStock hs2) { return hs1.High.CompareTo(hs2.High); });
 
                 return retval;
             }
